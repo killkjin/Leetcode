@@ -1,0 +1,41 @@
+题解：
+    水题，思路是Trival的。对图的每个节点做一次遍历，通过数组，记录节点的访问情况，已访问的直接跳过，
+    未访问的通过DFS检查是否存在环。记录最大环的值。关键就是环的存在性和环的大小。
+
+反思：
+    环的存在性思考没考虑全，因为之前的遍历，可能导致本次搜索的结束条件不是因为环的存在。因此记录了搜索轮次，
+    只有本次搜索轮次结束，才会被认定存在环。
+
+代码：
+class Solution {
+public:
+    int longestCycle(vector<int>& edges) {
+        vector<int> visited;
+        vector<int> round;
+        for( int i = 0; i < edges.size(); ++i)
+        {
+            visited.push_back(0);
+            round.push_back(0);
+        }
+        int maxCycle = 0;
+        int curRound = 0;
+        for(int i = 0; i < edges.size(); ++i)
+        {
+            if(visited[i] > 0) continue;
+            ++curRound;
+            int j = i;
+            int depth = 0;
+            for( ;j != -1 && visited[j] == 0; j = edges[j])
+            {
+                visited[j] = ++depth;
+                round[j] = curRound;
+            }
+            if( j != -1 && round[j] == curRound) maxCycle = max(maxCycle, depth + 1 - visited[j]);
+        }
+        
+        return maxCycle == 0? -1 : maxCycle;
+    }
+};
+
+用时 beat 90%
+内存占用 beat 68%

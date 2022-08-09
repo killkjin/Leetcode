@@ -1,0 +1,18 @@
+题解：
+    水题，很简单的就能通过贪心构造最大组数的分布形式。组数n 为满足 n * (n + 1) <= 2 * grades.size()的最大值;
+
+class Solution {
+public:
+    int maximumGroups(vector<int>& grades) {
+        int len = grades.size();
+        int groupCnt = (int)sqrt(len * 2);
+        if( groupCnt * (groupCnt + 1) > 2 * len)
+        {
+            groupCnt--;
+        }
+        return groupCnt;
+    }
+};
+
+用时beat 63%
+要做提升，可以从sqrt着手，利用牛顿迭代法减少用时。

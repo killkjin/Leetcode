@@ -1,0 +1,109 @@
+题意：
+    给定最多只有一条出方向边的有向图G中的亮点A,B(可能重复)。求满足要求的点C,使得点C离A, B两点距离中的最大距离最小。
+    存在多个这样的点C,选取索引值最小的点C。
+
+题解：
+    思路是Trivial的，各自遍历以A, B两点为起点的DFS路径，因为最多只有一条出方向边，所以特定深度值对应搜索路径的点唯一。
+    一开始的思路是用map记录路径对应的深度值，vector记录深度值对应的节点。
+    然后遍历可能的深度i，获取对应A搜索路径中的节点Ni, 在B的搜索路径中找到Ni节点对应的深度depthBi.
+    如果存在, 则将max(i, depthBi)和已有比较值比较，根据比较结果选择是否更新比较值和记录节点索引。
+    同理，对B做同样处理。注意点就是，比较结果相等时，索引值更小的要被记录。
+    提交后发现用时和空间占用都不理想，用时Beat 9%不能接受。思考后，整体思路没问题，分析代码发现，时间复杂度是O(nlogn.
+    优化需要从logn入手，关键点应该是引入的map。思路更新为，记录每个节点距离点A和点B的距离，最后遍历每个节点，找到满足条件的C.
+    没有必要记录搜素路径。这个思路应该是最平凡的，一开始没想到，因此记录下。
+
+原始思路：
+class Solution {
+public:
+    int closestMeetingNode(vector<int>& edges, int node1, int node2) {
+        if(node1 == node2) return node1;
+        vector<int> pathA, pathB;
+        map<int,int> searchedA, searchedB;
+        int idx = 0;
+        pathA.push_back(-1);
+        for( int  i = node1; i!=-1 && searchedA[i] == 0; i = edges[i])
+        {
+            pathA.push_back(i);
+            searchedA[i] = ++idx;
+        }
+        idx = 0;
+        pathB.push_back(-1);
+        for( int i = node2; i!=-1 && searchedB[i] == 0; i = edges[i])
+        {
+            pathB.push_back(i);
+            searchedB[i] = ++idx;
+        }
+        int mini = edges.size() + 1;
+        int ans = -1;
+        for( int i = 1; i < min(pathA.size(), pathB.size()); ++i)
+        {
+            if( i > mini) break;
+            int distB = searchedB[pathA[i]];            
+            if( distB != 0)
+            {
+                if( mini > max( i, distB))
+                {
+                    ans = pathA[i];
+                    mini = max( i, distB);
+                }
+                else if( mini == max( i, distB))
+                {
+                    ans = min(ans, pathA[i]);
+                }
+            }
+            int distA = searchedA[pathB[i]];
+            if(distA != 0)
+            {
+                if( mini > max( i, distA))
+                {
+                    ans = pathB[i];
+                    mini = max( i, distA);
+                }
+                else if( mini == max( i, distA))
+                {
+                    ans = min(ans, pathB[i]);
+                }
+            }
+        }
+        return ans;
+    }
+};
+用时 beat 9%
+内存占用 beat 28%
+优化后：
+class Solution {
+public:
+    int closestMeetingNode(vector<int>& edges, int node1, int node2) {
+        if(node1 == node2) return node1;
+        vector<pair<int,int>> dists;
+        int inf = 0x3f3f3f3f;
+        for(int i = 0; i <edges.size(); ++i)
+        {
+            dists.push_back(make_pair(inf,inf));
+        }
+        int idx = 0;
+        for( int  i = node1; i!=-1 && dists[i].first == inf; i = edges[i])
+        {
+            dists[i].first = ++idx;
+        }
+        idx = 0;
+        for( int i = node2; i!=-1 && dists[i].second == inf; i = edges[i])
+        {
+             dists[i].second = ++idx;
+        }
+        int mini = inf;
+        int ans = -1;
+        for( int i = 0; i < edges.size(); ++i)
+        {
+            int maxDist = max(dists[i].first, dists[i].second);
+            if( maxDist < mini)
+            {
+                mini = maxDist;
+                ans = i;
+            }
+        }
+        return ans;
+    }
+};
+用时 beat 96%
+内存占用 beat 58%
