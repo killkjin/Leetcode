@@ -1,0 +1,45 @@
+题解：
+    题意很简明,最蠢就是O(N^3)的复杂度，直接想到就是提前计算Hash值，将比较的复杂度从O(N)降到O(1)。
+    这样没用利用到矩阵本身的性质，初步想法是类似KMP,有时间深入思考下，挺有意思。
+    然后首次写的时候，虽然想写unsigned long long，但是写的时候没过脑子，直接long long溢出。
+
+class Solution {
+public:
+    int equalPairs(vector<vector<int>>& grid) {
+        int n = grid.size();
+        int q = 100003;
+        vector<unsigned long long> p;
+        p.push_back(1);
+        for( int i = 1; i <n; ++i)
+        {
+            p.push_back( p[i-1] * q);
+        }
+        vector<unsigned long long> col,row;
+        for( int i = 0; i <n; ++i)
+        {
+            col.push_back(0);
+            row.push_back(0);
+        }
+        for(int i = 0; i <n; ++i)
+        {
+            for(int j = 0; j <n; ++j)
+            {
+                col[i] += grid[j][i] * p[j];
+                row[i] += grid[i][j] * p[j];
+            }
+        }
+        
+        int ans = 0;
+        for(int i = 0; i <n; ++i)
+        {
+            for(int j = 0; j <n; ++j)
+            {
+                if(col[i] == row[j]) ans++;
+            }
+        }
+        return ans;
+    }
+};
+
+用时beat 76%
+内存占用 beat 69%

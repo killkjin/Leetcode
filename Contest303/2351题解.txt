@@ -1,0 +1,19 @@
+题解：
+    水题,就是求字符串中首个重复出现的字符
+
+代码：
+class Solution {
+public:
+    char repeatedCharacter(string s) {
+        map<char, int> charCount;
+        for(int i = 0; i < s.size(); ++i)
+        {
+            int tmp = ++charCount[s[i]];
+            if(tmp == 2) return s[i];
+        }
+        return ' ';
+    }
+};
+
+用时 beat 100%
+内存占用 beat 60%

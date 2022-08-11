@@ -1,0 +1,63 @@
+题解：
+    理解清题意后，题目挺简单的。关键就是位运算， num1 AND num2 和 num1 OR num2 结果里位为1的数量之和 
+    等于 num1里位为1的数量 + num2 里位为1的数量；
+    因为同一个数，只有一个起作用，首先可以做次去重。
+    写的时候，注意到了位数数量，遍历求值时做了优化。但是没到90%的目标，后续再优化。
+
+代码：
+class Solution {
+public:
+    
+    int calcBits(int num)
+    {
+        int cnt = 0;
+        while(num != 0)
+        {
+            int lowbit = num & (-num);
+            cnt++;
+            num -= lowbit;
+        }
+        return cnt;
+    }
+    long long countExcellentPairs(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end());
+        nums.erase(unique(nums.begin(), nums.end()), nums.end());
+        vector<int> bitCount;
+        for(int i = 0; i < nums.size(); ++i)
+        {
+            int cnt = calcBits(nums[i]);
+            bitCount.push_back(cnt);
+        }
+        sort(bitCount.begin(), bitCount.end());
+        vector<int>::iterator iter = bitCount.begin();
+        long long ans = 0;
+        vector<int> bitsCount;
+        for( int i = 0; i < 32; ++i)
+        {
+            bitsCount.push_back(0);
+        }
+        for(int i=0; i< bitCount.size();++i)
+        {
+           bitsCount[bitCount[i]]++;
+        }
+        for(int i=0; i< bitCount.size();)
+        {
+            int bits = bitCount[i];
+            iter = lower_bound(bitCount.begin(), bitCount.end(),k- bits);
+            if(iter == bitCount.end()) 
+            {
+                i += bitsCount[bits];
+                continue;
+            }   
+                
+            int pos = iter - bitCount.begin();
+            ans += (bitCount.size() -pos) * bitsCount[bits];
+            i += bitsCount[bits];
+        }
+        return ans;
+        
+    }
+};
+
+用时 beat 80%
+内存占用 beat 89%
